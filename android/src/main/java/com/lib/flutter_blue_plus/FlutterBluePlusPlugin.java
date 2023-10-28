@@ -34,6 +34,10 @@ import android.os.Looper;
 import android.os.ParcelUuid;
 import android.util.Log;
 import android.util.SparseArray;
+import android.app.Activity;
+import android.view.Window;
+import android.view.WindowManager;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -200,6 +204,21 @@ public class FlutterBluePlusPlugin implements
         activityBinding.removeRequestPermissionsResultListener(this);
         activityBinding = null;
     }
+
+    public void unlockScreen() {
+        if (activityBinding != null && activityBinding.getActivity() != null) {
+            Window window = activityBinding.getActivity().getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
+            window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+            window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        } else {
+            // Handle the case when activityBinding or its activity is null.
+            // You may want to log a message or take appropriate action.
+        }
+    }
+
+
+
 
     ////////////////////////////////////////////////////////////
     // ███    ███  ███████  ████████  ██   ██   ██████   ██████
@@ -399,7 +418,7 @@ public class FlutterBluePlusPlugin implements
                 }
 
                 case "startScan":
-                {
+                {   
                     ArrayList<String> permissions = new ArrayList<>();
 
                     // see: BmScanSettings
@@ -423,6 +442,8 @@ public class FlutterBluePlusPlugin implements
                     if (Build.VERSION.SDK_INT <= 30) { // Android 11 (September 2020)
                         permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
                     }
+
+                    unlockScreen();
 
                     ensurePermissions(permissions, (granted, perm) -> {
 
@@ -463,6 +484,12 @@ public class FlutterBluePlusPlugin implements
                             ScanFilter f = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString(uuid)).build();
                             filters.add(f);
                         }
+
+                        ScanFilter companyFilter = new ScanFilter.Builder()
+                                .setManufacturerData(0x094F, new byte[]{}) 
+                                .build();
+                        filters.add(companyFilter);
+
 
                         scanner.startScan(filters, settings, getScanCallback());
 
