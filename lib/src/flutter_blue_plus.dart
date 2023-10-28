@@ -178,7 +178,7 @@ class FlutterBluePlus {
         serviceUuids: withServices,
         macAddresses: [],
         allowDuplicates: true,
-        androidScanMode: ScanMode.lowLatency.value,
+        androidScanMode: ScanMode.lowPower.value,
         androidUsesFineLocation: androidUsesFineLocation);
 
     Stream<BmScanResponse> responseStream = FlutterBluePlus._methodStream.stream
